@@ -1,0 +1,1 @@
+from gym_pairs_trading.envs.pairs_trading_env import PairsTradingEnv
