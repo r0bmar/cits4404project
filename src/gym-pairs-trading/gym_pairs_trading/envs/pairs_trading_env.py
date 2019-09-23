@@ -2,13 +2,16 @@ import gym
 from gym import error, spaces, utils
 from gym.utils import seeding
 
+from data_source import DataSource
+
 class PairsTradingEnv(gym.Env):
     metadata = {'render.modes': ['human']}
 
     action_space = spaces.Discrete(3)
     observation_space = None
 
-    def __init__(self):
+    def __init__(self, datasource):
+        super(PairsTradingEnv, self).__init__()
         self.data_source = None
         self.trading_sim = None
         self.market_metrics = None
