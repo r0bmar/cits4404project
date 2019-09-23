@@ -36,8 +36,8 @@ class DataSource(object):
             s2 = _s2.iloc[0]
 
             # Calculate percentage change in stock price
-            s1_percent_change = 100 * (s1.Close - s1.Open) / s1.Open
-            s2_percent_change = 100 * (s2.Close - s2.Open) / s2.Open
+            s1_percent_change = (s1.Close - s1.Open) / s1.Open
+            s2_percent_change = (s2.Close - s2.Open) / s2.Open
 
             return (date, np.array([s1.Close, s2.Close, s1_percent_change, s2_percent_change], dtype=np.float))
         raise StopIteration

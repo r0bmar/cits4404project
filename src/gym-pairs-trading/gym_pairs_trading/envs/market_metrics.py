@@ -26,12 +26,16 @@ class MarketMetrics(object):
 
         self._i += 1
 
-        normalised_log_stock_1 = np.log(self.window_1 / max_stock_1)
-        normalised_log_stock_2 = np.log(self.window_2 / max_stock_2)
-        
-        spread = normalised_log_stock_1[index] - normalised_log_stock_2[index]
+        data_ready = self._i >= self._window_size
+        if not data_ready:
+            return 0, False
+        else:
+            normalised_log_stock_1 = np.log(self.window_1 / max_stock_1)
+            normalised_log_stock_2 = np.log(self.window_2 / max_stock_2)
+            
+            spread = normalised_log_stock_1[index] - normalised_log_stock_2[index]
 
-        return spread, self._i >= self._window_size
+            return spread, True
 
 if __name__=='__main__':
     mm = MarketMetrics(window_size=5)
