@@ -2,10 +2,11 @@ import gym
 from gym import error, spaces, utils
 from gym.utils import seeding
 import numpy as np
+import os
 
-from data_source import DataSource
-from trading_sim import TradingSim
-from market_metrics import MarketMetrics
+from gym_pairs_trading.envs.data_source import DataSource
+from gym_pairs_trading.envs.trading_sim import TradingSim
+from gym_pairs_trading.envs.market_metrics import MarketMetrics
 
 class PairsTradingEnv(gym.Env):
     metadata = {'render.modes': ['human']}
@@ -17,8 +18,12 @@ class PairsTradingEnv(gym.Env):
         shape=(3,)
     )
 
-    def __init__(self, data_1, data_2):
+    def __init__(self):
         super(PairsTradingEnv, self).__init__()
+        # data_path = "/".join(os.getcwd().split("/")[:-1]) + "/data/"
+        data_path = "/Users/robinmarkwitz/Documents/cits4404project/data/"
+        data_1 = data_path + "AAPL.csv"
+        data_2 = data_path + "EOD-HD.csv"
         self.data_source = DataSource(data_1, data_2)
         self.trading_sim = TradingSim()
         self.market_metrics = MarketMetrics()
@@ -51,7 +56,7 @@ class PairsTradingEnv(gym.Env):
         return np.array([s1_pct, s2_pct, spread])
 
     def step(self, action):
-        done = 0 
+        done = 0
         try:
             date, data = next(self.data_source)
         except StopIteration:
@@ -74,8 +79,8 @@ class PairsTradingEnv(gym.Env):
 
 if __name__=='__main__':
     env = PairsTradingEnv(
-        "/Users/asafsilman/Documents/School/CITS4404 - AI/cits4404project/data/AAPL.csv",
-        "/Users/asafsilman/Documents/School/CITS4404 - AI/cits4404project/data/EOD-HD.csv"
+        "/Users/robinmarkwitz/Documents/cits4404project/data/AAPL.csv",
+        "/Users/robinmarkwitz/Documents/cits4404project/data/EOD-HD.csv"
     )
 
     import random

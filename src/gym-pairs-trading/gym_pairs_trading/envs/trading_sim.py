@@ -5,22 +5,22 @@ class Status(Enum):
     OUT_OF_SPREAD = 2
 
 class Actions(Enum):
-    BUY = 1
-    SELL = 2
-    HOLD = 3
+    BUY = 0
+    SELL = 1
+    HOLD = 2
 
 class TradingSim(object):
     def __init__(self, start_balance=10000, transaction_fee=10):
         self._start_balance = start_balance
-        
+
         self.transaction_fee = transaction_fee
         self.balance = self._start_balance
-        
+
         self.stock1_balance = 0
         self.stock2_balance = 0
 
         self.status = Status.OUT_OF_SPREAD
-    
+
     def reset(self):
         self.balance = self._start_balance
 
@@ -66,9 +66,9 @@ class TradingSim(object):
 
     def buy(self, stock_price):
         """Calculates maximum amount of stock that can be bought with
-        current cash balance. Returns the new cash and stock balance 
+        current cash balance. Returns the new cash and stock balance
         values.
-        
+
         Arguments:
             stock_price {int} -- Stock price
         Returns:
@@ -86,10 +86,10 @@ class TradingSim(object):
         return (new_cash_balance, max_stocks_to_buy)
 
     def sell(self, stock_price, stock_balance):
-        """Calculates cash balance that is returned when a stock is 
-        sold. Returns the new cash and stock balance 
+        """Calculates cash balance that is returned when a stock is
+        sold. Returns the new cash and stock balance
         values.
-        
+
         Arguments:
             stock_price {int} -- Stock price
             stock_balance {int} -- Current stock balance

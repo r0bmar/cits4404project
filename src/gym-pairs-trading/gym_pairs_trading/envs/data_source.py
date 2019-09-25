@@ -52,7 +52,7 @@ class DataSource(object):
         self.trading_day = 0
 
 if __name__=="__main__":
-    ds = DataSource("/Users/asafsilman/Documents/School/CITS4404 - AI/cits4404project/data/AAPL.csv", "/Users/asafsilman/Documents/School/CITS4404 - AI/cits4404project/data/EOD-HD.csv")
+    ds = DataSource("/Users/robinmarkwitz/Documents/cits4404project/data/AAPL.csv", "/Users/robinmarkwitz/Documents/cits4404project/data/EOD-HD.csv")
     for date, data in ds: print(date, data)
     ds.reset()
     print(next(ds))
