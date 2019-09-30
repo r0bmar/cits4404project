@@ -4,7 +4,7 @@ from gym.utils import seeding
 import numpy as np
 
 from data_source import DataSource
-from trading_sim import TradingSim
+from trading_sim import TradingSim, Actions
 from market_metrics import MarketMetrics
 
 import matplotlib.pyplot as plt
@@ -78,9 +78,9 @@ class PairsTradingEnv(gym.Env):
         obs = np.array([s1_pct, s2_pct, spread])
         reward = self.trading_sim.get_NAV(s1_price, s2_price)
 
-        if action == 1:
+        if action == Actions.BUY:
             self.render_data['buy'].append((self.trading_day, reward))
-        elif action == 2:
+        elif action == Actions.SELL:
             self.render_data['sell'].append((self.trading_day, reward))
         else:
             self.render_data['hold'].append((self.trading_day, reward))
