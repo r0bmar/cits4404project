@@ -3,9 +3,9 @@ from gym import error, spaces, utils
 from gym.utils import seeding
 import numpy as np
 
-from data_source import DataSource
-from trading_sim import TradingSim, Actions
-from market_metrics import MarketMetrics
+from .data_source import DataSource
+from .trading_sim import TradingSim, Actions
+from .market_metrics import MarketMetrics
 
 import matplotlib.pyplot as plt
 

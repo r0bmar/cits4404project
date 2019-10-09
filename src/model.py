@@ -1,33 +1,8 @@
 import tensorflow as tf
-import tensorflow.keras.layers as kl
+# import tensorflow.keras.layers as kl
 import numpy as np
 
-import gym
-
-# class ProbabilityDistribution(tf.keras.Model):
-#     def call(self, logits):
-#         return tf.squeeze(tf.random.categorical(logits, 1), axis=-1)
-
-# class Actor(tf.keras.Model):
-#     def __init__(self, num_actions):
-#         super().__init__('mlp_policy')
-
-#         self.h1 = kl.Dense(48, activation='relu')
-#         self.h2 = kl.Dense(num_actions, activation='relu', name='policy_logits')
-#         self.dist = ProbabilityDistribution()
-
-#     def call(self, inputs):
-#         x = tf.convert_to_tensor(inputs, dtype=tf.float32)
-#         x = self.h1(x)
-#         return self.h2(x)
-
-#     def action_value(self, obs):
-#         # executes call() under the hood
-#         logits = self.predict(obs)
-#         action = self.dist.predict(logits)
-#         # a simpler option, will become clear later why we don't use it
-#         # action = tf.random.categorical(logits, 1)
-#         return np.squeeze(action, axis=-1)
+from gym_pairs_trading import PairsTradingEnv
 
 class ActorCritic(object):
     """ActorCritic model for continous observation space, and discrete action space
@@ -85,11 +60,8 @@ class ActorCritic(object):
 
 
 if __name__=="__main__":
-    env = gym.make("CartPole-v1")
+    env = PairsTradingEnv("AAPL", "MSFT")
 
-    ac = ActorCritic(env)
-    obs = env.reset()
-    for _ in range(5):
-        print(ac.predict_action(obs))
+    print(env)
 
 
