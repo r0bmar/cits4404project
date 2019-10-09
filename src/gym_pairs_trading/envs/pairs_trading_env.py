@@ -26,6 +26,7 @@ class PairsTradingEnv(gym.Env):
         self.market_metrics = MarketMetrics()
 
         self.trading_day = 0
+        self.previous_reward = self.trading_sim.balance
 
         self.render_data = {'buy': [], 'sell': [], 'hold': [], 'portfolio_value': [], 'spread': []}
         self.plot_data = {}
@@ -40,6 +41,7 @@ class PairsTradingEnv(gym.Env):
         self.market_metrics.reset()
 
         self.trading_day = 1
+        self.previous_reward = self.trading_sim.balance
 
         self.render_data = {'buy': [], 'sell': [], 'hold': [], 'portfolio_value': [], 'spread': []}
         self.plot_data = {}
@@ -76,7 +78,7 @@ class PairsTradingEnv(gym.Env):
         self.trading_day += 1
 
         obs = np.array([s1_pct, s2_pct, spread])
-        reward = self.trading_sim.get_NAV(s1_price, s2_price)
+        reward = self.trading_sim.get_NAV(s1_price, s2_price) / self.previous_reward
 
         if action == Actions.BUY:
             self.render_data['buy'].append((self.trading_day, reward))
@@ -87,6 +89,7 @@ class PairsTradingEnv(gym.Env):
         self.render_data['portfolio_value'].append((self.trading_day, reward))
         self.render_data['spread'].append((self.trading_day, spread))
 
+        self.previous_reward = reward
         return obs, reward, done, {"date": date, "trading_day": self.trading_day}
 
     def render(self, mode='human'):

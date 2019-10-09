@@ -1,9 +1,14 @@
-import pandas as pd
 from datetime import timedelta
+
 import numpy as np
+import pandas as pd
+from alpha_vantage.timeseries import TimeSeries
+
+API_KEY = "SDI1P88XKQ3HASF9"
+TIME_SERIES_GETTER = TimeSeries(API_KEY, output_format='pandas')
 
 class DataSource(object):
-    def __init__(self, data1, data2):
+    def __init__(self, data1, data2):     
         self.d1 = pd.read_csv(data1)
         self.d2 = pd.read_csv(data2)
 
@@ -56,5 +61,3 @@ if __name__=="__main__":
     for date, data in ds: print(date, data)
     ds.reset()
     print(next(ds))
-
-
