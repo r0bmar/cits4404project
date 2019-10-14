@@ -5,10 +5,7 @@ from ..gym_pairs_trading.envs.trading_sim import Actions
 
 @pytest.fixture
 def load_env():
-    env = PairsTradingEnv(
-        "/Users/asafsilman/Documents/School/CITS4404 - AI/cits4404project/data/AAPL.csv",
-        "/Users/asafsilman/Documents/School/CITS4404 - AI/cits4404project/data/EOD-HD.csv"
-    )
+    env = PairsTradingEnv("AAPL","MSFT", size='compact')
     return env
 
 def test_reset_environment(load_env):

@@ -19,9 +19,9 @@ class PairsTradingEnv(gym.Env):
         shape=(3,)
     )
 
-    def __init__(self, data_1, data_2):
+    def __init__(self, data_1, data_2, **kwargs):
         super(PairsTradingEnv, self).__init__()
-        self.data_source = DataSource(data_1, data_2)
+        self.data_source = DataSource(data_1, data_2, **kwargs)
         self.trading_sim = TradingSim()
         self.market_metrics = MarketMetrics()
 
@@ -146,10 +146,7 @@ class PairsTradingEnv(gym.Env):
             print("Invalid render mode")
 
 if __name__=='__main__':
-    env = PairsTradingEnv(
-        "/Users/asafsilman/Documents/School/CITS4404 - AI/cits4404project/data/AAPL.csv",
-        "/Users/asafsilman/Documents/School/CITS4404 - AI/cits4404project/data/EOD-HD.csv"
-    )
+    env = PairsTradingEnv("AAPL","MSFT")
 
     import random
     import time
