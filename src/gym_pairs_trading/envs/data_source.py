@@ -38,7 +38,7 @@ class DataSource(object):
 
             try:
                 s1 = self.d1.loc[self.current_day]
-                s2 = self.d1.loc[self.current_day]
+                s2 = self.d2.loc[self.current_day]
             except KeyError:
                 continue
 
@@ -72,7 +72,7 @@ class DataSource(object):
             return data
 
 if __name__=="__main__":
-    ds = DataSource("AAPL", "MSFT", size='compact')
+    ds = DataSource("AAPL", "MSFT", size='full', cache=True)
     for date, data in ds: print(date, data)
     ds.reset()
     print(next(ds))
