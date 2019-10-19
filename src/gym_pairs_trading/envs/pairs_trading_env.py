@@ -81,9 +81,9 @@ class PairsTradingEnv(gym.Env):
         balance = self.trading_sim.get_NAV(s1_price, s2_price)
         reward = balance / self.previous_balance
 
-        if action == Actions.BUY:
+        if action == Actions.BUY.value:
             self.render_data['buy'].append((self.trading_day, balance))
-        elif action == Actions.SELL:
+        elif action == Actions.SELL.value:
             self.render_data['sell'].append((self.trading_day, balance))
         else:
             self.render_data['hold'].append((self.trading_day, balance))
@@ -155,7 +155,7 @@ if __name__=='__main__':
     env.reset()
     plt.ion()
     for _ in range(50):
-        obs, reward, done, _ = env.step(random.randint(1,3))
+        obs, reward, done, _ = env.step(random.randint(0,2))
         env.render(mode='human')
 
         if done: break
