@@ -60,6 +60,15 @@ class PairsTradingEnv(gym.Env):
 
         return np.array([s1_pct, s2_pct, spread])
 
+    def skip_forward(self, days):
+        try:
+            for _ in range(days):
+                next(self.data_source)
+                self.trading_day += 1
+            return True
+        except StopIteration:
+            False
+    
     def step(self, action):
         done = 0 
         try:
@@ -79,7 +88,7 @@ class PairsTradingEnv(gym.Env):
 
         obs = np.array([s1_pct, s2_pct, spread])
         balance = self.trading_sim.get_NAV(s1_price, s2_price)
-        reward = balance / self.previous_balance
+        reward = balance / self.previous_balance - 1 # Subtract 1 to centre at 0
 
         if action == Actions.BUY.value:
             self.render_data['buy'].append((self.trading_day, balance))
