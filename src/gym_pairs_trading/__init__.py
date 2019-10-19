@@ -1,1 +1,1 @@
-from .envs.pairs_trading_env import PairsTradingEnv
+from .envs.pairs_trading_env import PairsTradingEnv, PairsTradingEnvV2
