@@ -40,7 +40,7 @@ class DataSource(object):
 
     def __next__(self):
         while self.current_day != self.end_date:
-            self.current_day= self.current_day + pd.offsets.Day(1)
+            self.current_day = self.current_day + pd.offsets.Day(1)
 
             try:
                 s1 = self.d1.loc[self.current_day]
