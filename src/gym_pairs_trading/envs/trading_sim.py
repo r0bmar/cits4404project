@@ -5,9 +5,9 @@ class Status(Enum):
     OUT_OF_SPREAD = 2
 
 class Actions(Enum):
-    BUY = 1
-    SELL = 2
-    HOLD = 3
+    BUY = 0
+    SELL = 1
+    HOLD = 2
 
 class TradingSim(object):
     def __init__(self, start_balance=10000, transaction_fee=10):
