@@ -40,7 +40,7 @@ class TradingSim(object):
         action = Actions(action)
         if action == Actions.BUY:
             if self.status == Status.INVESTED_IN_SPREAD:
-                self.balance = self.balance*0.95
+                self.balance = self.balance*0.85
                 return # Cannot invest if already invested
 
             # Invest in spread
@@ -54,7 +54,7 @@ class TradingSim(object):
             self.status = Status.INVESTED_IN_SPREAD
         elif action == Actions.SELL:
             if self.status == Status.OUT_OF_SPREAD:
-                self.balance = self.balance*0.95
+                self.balance = self.balance*0.85
                 return # Cannot sell if not invested
 
             if self.stock1_balance > 0:

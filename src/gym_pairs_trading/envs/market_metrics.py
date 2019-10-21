@@ -1,7 +1,7 @@
 import numpy as np
 
 class MarketMetrics(object):
-    days = 7
+    days = 5
     
     def __init__(self, window_size=20):
         self._window_size = window_size
