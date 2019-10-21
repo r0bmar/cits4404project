@@ -3,8 +3,8 @@ import numpy as np
 import math
 
 class Status(Enum):
-    INVESTED_IN_SPREAD = 1
-    OUT_OF_SPREAD = 2
+    INVESTED_IN_SPREAD = 0
+    OUT_OF_SPREAD = 1
 
 class Actions(Enum):
     BUY = 0
@@ -40,6 +40,7 @@ class TradingSim(object):
         action = Actions(action)
         if action == Actions.BUY:
             if self.status == Status.INVESTED_IN_SPREAD:
+                self.balance = self.balance*0.95
                 return # Cannot invest if already invested
 
             # Invest in spread
@@ -53,6 +54,7 @@ class TradingSim(object):
             self.status = Status.INVESTED_IN_SPREAD
         elif action == Actions.SELL:
             if self.status == Status.OUT_OF_SPREAD:
+                self.balance = self.balance*0.95
                 return # Cannot sell if not invested
 
             if self.stock1_balance > 0:

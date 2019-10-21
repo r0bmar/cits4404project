@@ -16,7 +16,7 @@ class PairsTradingEnv(gym.Env):
     observation_space = spaces.Box(
         low=-1,
         high=1,
-        shape=(3,)
+        shape=(4,)
     )
 
     def __init__(self, data_1, data_2, **kwargs):
@@ -58,7 +58,7 @@ class PairsTradingEnv(gym.Env):
             self.trading_day += 1
 
 
-        return np.array([s1_pct, s2_pct, spread])
+        return np.array([s1_pct, s2_pct, spread, self.trading_sim.status.value])
 
     def skip_forward(self, days):
         try:
@@ -75,7 +75,7 @@ class PairsTradingEnv(gym.Env):
             date, data = next(self.data_source)
         except StopIteration:
             done = 1
-            obs = [0, 0, 0]
+            obs = [0, 0, 0, 0]
             reward = 0
             return obs, reward, done, {}
         s1_price, s2_price, s1_pct, s2_pct = data
@@ -86,7 +86,7 @@ class PairsTradingEnv(gym.Env):
 
         self.trading_day += 1
 
-        obs = np.array([s1_pct, s2_pct, spread])
+        obs = np.array([s1_pct, s2_pct, spread, self.trading_sim.status.value])
         balance = self.trading_sim.get_NAV(s1_price, s2_price)
         reward = balance / self.previous_balance - 1 # Subtract 1 to centre at 0
 
