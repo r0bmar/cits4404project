@@ -41,7 +41,7 @@ class PairsTradingEnv(gym.Env):
         self.market_metrics.reset()
 
         self.trading_day = 1
-        self.previous_reward = self.trading_sim.balance
+        self.previous_balance = self.trading_sim.balance
 
         self.render_data = {'buy': [], 'sell': [], 'hold': [], 'portfolio_value': [], 'spread': []}
         self.plot_data = {}
@@ -64,7 +64,11 @@ class PairsTradingEnv(gym.Env):
     def skip_forward(self, days):
         try:
             for _ in range(days):
-                next(self.data_source)
+                date, data = next(self.data_source)
+                s1_price, s2_price, s1_pct, s2_pct = data
+                self.market_metrics.update(s1_price, s2_price)
+                self.market_metrics.update_percentage(s1_pct, s2_pct)
+                self.previous_balance = self.trading_sim.get_NAV(s1_price, s2_price)
                 self.trading_day += 1
             return True
         except StopIteration:
