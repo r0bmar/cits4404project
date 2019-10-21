@@ -16,7 +16,7 @@ class PairsTradingEnv(gym.Env):
     observation_space = spaces.Box(
         low=-1,
         high=1,
-        shape=(4,)
+        shape=(12,)
     )
 
     def __init__(self, data_1, data_2, **kwargs):
@@ -50,6 +50,7 @@ class PairsTradingEnv(gym.Env):
         s1_price, s2_price, s1_pct, s2_pct = data
 
         spread, data_ready = self.market_metrics.update(s1_price, s2_price)
+        stock_1_changes, stock_2_changes = self.market_metrics.update_percentage(s1_pct, s2_pct)
         while not data_ready:
             date, data = next(self.data_source)
             s1_price, s2_price, s1_pct, s2_pct = data
@@ -58,7 +59,7 @@ class PairsTradingEnv(gym.Env):
             self.trading_day += 1
 
 
-        return np.array([s1_pct, s2_pct, spread, self.trading_sim.status.value])
+        return np.array(stock_1_changes+stock_2_changes+[spread, self.trading_sim.status.value])
 
     def skip_forward(self, days):
         try:
@@ -81,12 +82,13 @@ class PairsTradingEnv(gym.Env):
         s1_price, s2_price, s1_pct, s2_pct = data
 
         spread, _ = self.market_metrics.update(s1_price, s2_price)
+        stock_1_changes, stock_2_changes = self.market_metrics.update_percentage(s1_pct, s2_pct)
 
         self.trading_sim.execute(action, spread, s1_price, s2_price)
 
         self.trading_day += 1
 
-        obs = np.array([s1_pct, s2_pct, spread, self.trading_sim.status.value])
+        obs = np.array(stock_1_changes+stock_2_changes+[spread, self.trading_sim.status.value])
         balance = self.trading_sim.get_NAV(s1_price, s2_price)
         reward = balance / self.previous_balance - 1 # Subtract 1 to centre at 0
 

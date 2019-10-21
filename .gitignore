@@ -2,6 +2,7 @@ env/
 .ipynb_checkpoints/
 
 __pycache__/
+*.pyc
 .pytest_cache/
 
 data/*.csv

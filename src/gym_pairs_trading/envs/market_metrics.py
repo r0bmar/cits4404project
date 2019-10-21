@@ -7,11 +7,18 @@ class MarketMetrics(object):
         self.window_1 = np.zeros(self._window_size)
         self.window_2 = np.zeros(self._window_size)
 
+        self.days = 5
+        self.queue_1 = [0] * self.days
+        self.queue_2 = [0] * self.days
+
         self._i = 0
 
     def reset(self):
         self.window_1 = np.zeros(self._window_size)
         self.window_2 = np.zeros(self._window_size)
+
+        self.queue_1 = [0] * self.days
+        self.queue_2 = [0] * self.days
 
         self._i = 0
 
@@ -36,6 +43,16 @@ class MarketMetrics(object):
             spread = normalised_log_stock_1[index] - normalised_log_stock_2[index]
 
             return spread, True
+
+    def update_percentage(self, stock_pct_1, stock_pct_2):
+        self.queue_1.insert(0, stock_pct_1)
+        self.queue_2.insert(0, stock_pct_2)
+
+        self.queue_1.pop()
+        self.queue_2.pop()
+
+        return self.queue_1, self.queue_2
+
 
 if __name__=='__main__':
     mm = MarketMetrics(window_size=5)
