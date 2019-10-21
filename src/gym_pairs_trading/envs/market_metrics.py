@@ -1,13 +1,14 @@
 import numpy as np
 
 class MarketMetrics(object):
+    days = 7
+    
     def __init__(self, window_size=20):
         self._window_size = window_size
 
         self.window_1 = np.zeros(self._window_size)
         self.window_2 = np.zeros(self._window_size)
 
-        self.days = 5
         self.queue_1 = [0] * self.days
         self.queue_2 = [0] * self.days
 

@@ -16,7 +16,7 @@ class PairsTradingEnv(gym.Env):
     observation_space = spaces.Box(
         low=-1,
         high=1,
-        shape=(12,)
+        shape=(MarketMetrics.days*2+2,)
     )
 
     def __init__(self, data_1, data_2, **kwargs):
