@@ -12,7 +12,14 @@ class Actions(Enum):
     HOLD = 2
 
 class TradingSim(object):
+    """Trading Sim class, keeps track of stock balances, cash balances, and valid operations by model."""
     def __init__(self, start_balance=10000, transaction_fee=10):
+        """Initialises a new trading sim instance
+        
+        Keyword Arguments:
+            start_balance {int} -- starting cash balance (default: {10000})
+            transaction_fee {int} -- how much it costs to perform a trade (default: {10})
+        """
         self._start_balance = start_balance
         
         self.transaction_fee = transaction_fee
@@ -24,6 +31,8 @@ class TradingSim(object):
         self.status = Status.OUT_OF_SPREAD
     
     def reset(self):
+        """Resets trading sim to initial state
+        """
         self.balance = self._start_balance
 
         self.stock1_balance = 0
@@ -32,15 +41,32 @@ class TradingSim(object):
         self.status = Status.OUT_OF_SPREAD
 
     def get_NAV(self, stock1_price, stock2_price):
+        """Gets the Net Asset Value of the portolio
+        
+        Arguments:
+            stock1_price {float} -- Price of stock 1
+            stock2_price {float} -- Price of stock 2
+        
+        Returns:
+            float -- net asset value
+        """
         return self.balance + \
             self.stock1_balance * stock1_price + \
             self.stock2_balance * stock2_price
 
     def execute(self, action, spread, stock1_price, stock2_price):
+        """Execute an action, either buy sell or hold
+        
+        Arguments:
+            action {Actions} -- Which action to perform
+            spread {float} -- spread value
+            stock1_price {float} -- price of stock 1
+            stock2_price {float} -- price of stock 2
+        """
         action = Actions(action)
         if action == Actions.BUY:
             if self.status == Status.INVESTED_IN_SPREAD:
-                self.balance = self.balance*0.85
+                self.balance = self.balance*0.95
                 return # Cannot invest if already invested
 
             # Invest in spread
@@ -54,7 +80,7 @@ class TradingSim(object):
             self.status = Status.INVESTED_IN_SPREAD
         elif action == Actions.SELL:
             if self.status == Status.OUT_OF_SPREAD:
-                self.balance = self.balance*0.85
+                self.balance = self.balance*0.95
                 return # Cannot sell if not invested
 
             if self.stock1_balance > 0:
@@ -109,6 +135,7 @@ class TradingSim(object):
 
         return (new_cash_balance, 0)
 
+# Ignore this class, used for testing.
 class TradingSimV2(object):
     def __init__(self, **kwargs):
         start_balance = kwargs.get('start_balance', 10000)
