@@ -45,6 +45,7 @@ class PairsTradingEnv(gym.Env):
         self.market_metrics = MarketMetrics(days)
         self.trading_day = 0
         self.previous_balance = self.trading_sim.balance
+        self.portfolio_value = self.trading_sim.balance
 
         self.render_data = {'buy': [], 'sell': [], 'hold': [], 'portfolio_value': [], 'spread': []}
         self.plot_data = {}
@@ -73,6 +74,7 @@ class PairsTradingEnv(gym.Env):
 
         self.trading_day = 1
         self.previous_balance = self.trading_sim.balance
+        self.portfolio_value = self.trading_sim.balance
 
         self.render_data = {'buy': [], 'sell': [], 'hold': [], 'portfolio_value': [], 'spread': []}
         self.plot_data = {}
@@ -116,6 +118,9 @@ class PairsTradingEnv(gym.Env):
         except StopIteration:
             False
 
+    def get_portfolio_value(self):
+        return self.portfolio_value
+
     def step(self, action, penalty):
         """Perform a set in the environment
 
@@ -152,6 +157,7 @@ class PairsTradingEnv(gym.Env):
         else:
             obs = np.array(stock_1_changes+stock_2_changes+[spread, self.trading_sim.status.value])
         balance = self.trading_sim.get_NAV(s1_price, s2_price)
+        self.portfolio_value = self.trading_sim.get_NAV(s1_price, s2_price)
         reward = balance / self.previous_balance - 1 # Subtract 1 to centre at 0
 
         if action == Actions.BUY.value:
