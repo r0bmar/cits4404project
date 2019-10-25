@@ -3,11 +3,11 @@ import numpy as np
 class MarketMetrics(object):
     """Calculates market metrics, including normalised log price spread, and the last `days` worth of price changes"""
 
-    def __init__(self, days, window_size=20):
+    def __init__(self, days=5, window_size=20):
         """Creates a MarketMetrics instance.
 
         Arguments:
-            days {int} -- days' worth of price changes are considered.
+            days {int} -- days worth of price changes are considered.
 
         Keyword Arguments:
             window_size {int} -- window size to calculate normalised price (default: {20})

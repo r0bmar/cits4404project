@@ -28,6 +28,8 @@ class TradingSim(object):
         self.stock1_balance = 0
         self.stock2_balance = 0
 
+        self.spread_when_bought = 0
+
         self.status = Status.OUT_OF_SPREAD
     
     def reset(self):
@@ -65,7 +67,7 @@ class TradingSim(object):
         """
         action = Actions(action)
         if action == Actions.BUY:
-
+            self.spread_when_bought = spread
             if self.status == Status.INVESTED_IN_SPREAD:
                 first = False
                 if(penalty != 1):
@@ -109,6 +111,7 @@ class TradingSim(object):
 
             self.status = Status.OUT_OF_SPREAD
         elif action == Actions.HOLD:
+            
             return
 
     def buy(self, stock_price):

@@ -4,10 +4,12 @@ from gym.utils import seeding
 import numpy as np
 
 from .data_source import DataSource
-from .trading_sim import TradingSim, TradingSimV2, Actions
+from .trading_sim import TradingSim, TradingSimV2, Actions, Status
 from .market_metrics import MarketMetrics
 
 import matplotlib.pyplot as plt
+
+sign = lambda x: x and (1, -1)[x < 0]
 
 class PairsTradingEnv(gym.Env):
     metadata = {'render.modes': ['human', 'console']}
@@ -25,6 +27,7 @@ class PairsTradingEnv(gym.Env):
             Example:
                 spread_status = 0 : the status is not considered
                 spread_status = 1 : the status is considered
+                spread_status = 2 : the spread status is considered, including if spread value inverts since buying
                 Other values are not legal.
 
         Key Word Arguments:
@@ -93,8 +96,10 @@ class PairsTradingEnv(gym.Env):
 
         if self.spread_status == 0:
             obs = np.array(stock_1_changes+stock_2_changes+[spread])
-        else:
+        elif self.spread_status == 1:
             obs = np.array(stock_1_changes+stock_2_changes+[spread, self.trading_sim.status.value])
+        else:
+            obs = np.array(stock_1_changes+stock_2_changes+[spread, self.trading_sim.status.value, 0])
         return obs
 
     def skip_forward(self, days):
@@ -141,7 +146,7 @@ class PairsTradingEnv(gym.Env):
             date, data = next(self.data_source)
         except StopIteration:
             done = 1
-            obs = [0, 0, 0, 0]
+            obs = [0] * self.observation_space.shape[0]
             reward = 0
             return obs, reward, done, {}
         s1_price, s2_price, s1_pct, s2_pct = data
@@ -149,13 +154,20 @@ class PairsTradingEnv(gym.Env):
         spread, _ = self.market_metrics.update(s1_price, s2_price)
         stock_1_changes, stock_2_changes = self.market_metrics.update_percentage(s1_pct, s2_pct)
 
+        spread_inverted = 0
+        if self.trading_sim.status == Status.INVESTED_IN_SPREAD:
+            if sign(self.trading_sim.spread_when_bought) != sign(spread):
+                spread_inverted = 1
+
         self.trading_sim.execute(action, spread, s1_price, s2_price, penalty)
 
         self.trading_day += 1
         if self.spread_status == 0:
             obs = np.array(stock_1_changes+stock_2_changes+[spread])
-        else:
+        elif self.spread_status == 1:
             obs = np.array(stock_1_changes+stock_2_changes+[spread, self.trading_sim.status.value])
+        else:
+            obs = np.array(stock_1_changes+stock_2_changes+[spread, self.trading_sim.status.value, spread_inverted])
         balance = self.trading_sim.get_NAV(s1_price, s2_price)
         self.portfolio_value = self.trading_sim.get_NAV(s1_price, s2_price)
         reward = balance / self.previous_balance - 1 # Subtract 1 to centre at 0
