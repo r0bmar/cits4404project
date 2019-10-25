@@ -16,7 +16,7 @@ class PairsTradingEnv(gym.Env):
     observation_space = spaces.Box(
         low=-1,
         high=1,
-        shape=(MarketMetrics.days*2+2,)
+        shape=(MarketMetrics.days*2+3,)
     )
 
     def __init__(self, data_1, data_2, **kwargs):
@@ -74,7 +74,7 @@ class PairsTradingEnv(gym.Env):
         except StopIteration:
             False
     
-    def step(self, action):
+    def step(self, action, penalty):
         done = 0 
         try:
             date, data = next(self.data_source)
@@ -88,7 +88,7 @@ class PairsTradingEnv(gym.Env):
         spread, _ = self.market_metrics.update(s1_price, s2_price)
         stock_1_changes, stock_2_changes = self.market_metrics.update_percentage(s1_pct, s2_pct)
 
-        self.trading_sim.execute(action, spread, s1_price, s2_price)
+        self.trading_sim.execute(action, spread, s1_price, s2_price, penalty)
 
         self.trading_day += 1
 
@@ -221,7 +221,7 @@ class PairsTradingEnvV2(gym.Env):
         except StopIteration:
             False
     
-    def step(self, action):
+    def step(self, action, penalty):
         done = 0 
         try:
             date, data = next(self.data_source)

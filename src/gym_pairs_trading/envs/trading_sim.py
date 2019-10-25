@@ -12,7 +12,7 @@ class Actions(Enum):
     HOLD = 2
 
 class TradingSim(object):
-    def __init__(self, start_balance=10000, transaction_fee=10):
+    def __init__(self, start_balance=1000, transaction_fee=10):
         self._start_balance = start_balance
         
         self.transaction_fee = transaction_fee
@@ -36,11 +36,28 @@ class TradingSim(object):
             self.stock1_balance * stock1_price + \
             self.stock2_balance * stock2_price
 
-    def execute(self, action, spread, stock1_price, stock2_price):
+    def execute(self, action, spread, stock1_price, stock2_price, penalty):
         action = Actions(action)
         if action == Actions.BUY:
+
             if self.status == Status.INVESTED_IN_SPREAD:
-                self.balance = self.balance*0.85
+                first = False
+                if(penalty != 1):
+                    if self.stock1_balance > 0:
+                        # sell stock 1
+                        first = True
+                        self.balance, self.stock1_balance = self.sell(stock1_price, self.stock1_balance)
+                    elif self.stock2_balance > 0:
+                        # sell stock 2
+                        self.balance, self.stock2_balance = self.sell(stock2_price, self.stock2_balance)
+
+                    self.balance = self.balance*penalty
+
+                    if first:
+                        self.balance, self.stock1_balance = self.buy(stock1_price)
+                    else:
+                        self.balance, self.stock2_balance = self.buy(stock2_price)
+
                 return # Cannot invest if already invested
 
             # Invest in spread
@@ -54,7 +71,7 @@ class TradingSim(object):
             self.status = Status.INVESTED_IN_SPREAD
         elif action == Actions.SELL:
             if self.status == Status.OUT_OF_SPREAD:
-                self.balance = self.balance*0.85
+                self.balance = self.balance*penalty
                 return # Cannot sell if not invested
 
             if self.stock1_balance > 0:
