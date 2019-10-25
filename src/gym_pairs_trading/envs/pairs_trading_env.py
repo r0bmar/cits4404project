@@ -12,19 +12,37 @@ import matplotlib.pyplot as plt
 class PairsTradingEnv(gym.Env):
     metadata = {'render.modes': ['human', 'console']}
 
-    action_space = spaces.Discrete(3)
-    observation_space = spaces.Box(
-        low=-1,
-        high=1,
-        shape=(MarketMetrics.days*2+3,)
-    )
+    def __init__(self, data_1, data_2, days, spread_status, **kwargs):
+        """Initializes the PairsTradingEnv.
 
-    def __init__(self, data_1, data_2, **kwargs):
+        Arguments:
+            data_1 {str} -- the stock symbol for Stock 1
+            data_2 {str} -- the stock symbol for Stock 2
+            days {int} -- the number of days to consider in the observation
+                space
+            spread_status {int} -- if the spread status is considered or not.
+
+            Example:
+                spread_status = 0 : the status is not considered
+                spread_status = 1 : the status is considered
+                Other values are not legal.
+
+        Key Word Arguments:
+            None
+        """
+
+        self.spread_status = spread_status
+        self.action_space = spaces.Discrete(3)
+        self.observation_space = spaces.Box(
+            low=-1,
+            high=1,
+            shape=(days*2+1+self.spread_status,)
+        )
+
         super(PairsTradingEnv, self).__init__()
         self.data_source = DataSource(data_1, data_2, **kwargs)
         self.trading_sim = TradingSim()
-        self.market_metrics = MarketMetrics()
-
+        self.market_metrics = MarketMetrics(days)
         self.trading_day = 0
         self.previous_balance = self.trading_sim.balance
 
@@ -33,10 +51,10 @@ class PairsTradingEnv(gym.Env):
 
     def seed(self, seed=None):
         """Sets a seed for the envirnoment
-        
+
         Keyword Arguments:
             seed {any} -- seed value (default: {None})
-        
+
         Returns:
             [[seed]] -- seed value in array
         """
@@ -45,7 +63,7 @@ class PairsTradingEnv(gym.Env):
 
     def reset(self):
         """Resets the ennvironment
-        
+
         Returns:
             numpy.Array -- Initial observations from environment
         """
@@ -71,15 +89,18 @@ class PairsTradingEnv(gym.Env):
             spread, data_ready = self.market_metrics.update(s1_price, s2_price)
             self.trading_day += 1
 
-
-        return np.array(stock_1_changes+stock_2_changes+[spread, self.trading_sim.status.value])
+        if self.spread_status == 0:
+            obs = np.array(stock_1_changes+stock_2_changes+[spread])
+        else:
+            obs = np.array(stock_1_changes+stock_2_changes+[spread, self.trading_sim.status.value])
+        return obs
 
     def skip_forward(self, days):
         """Skip forward a number of days in the envirnoment. Will fail if end of dataset.
-        
+
         Arguments:
             days {int} -- number of days to skip ahead
-        
+
         Returns:
             bool -- If skip was successful
         """
@@ -94,17 +115,23 @@ class PairsTradingEnv(gym.Env):
             return True
         except StopIteration:
             False
-    
+
     def step(self, action, penalty):
         """Perform a set in the environment
-        
+
         Arguments:
             action {int} -- One of Action enum values
-        
+            penalty {float} - Percentage of decrease of balance when performing
+                an illegal action.
+
+            Example:
+                penalty = 0.9 : the portfolio value is rescaled by 0.9 when
+                    an illegal action is performed.
+
         Returns:
             tuple -- (obs, reward, done, info) implementation of gym
         """
-        done = 0 
+        done = 0
         try:
             date, data = next(self.data_source)
         except StopIteration:
@@ -120,8 +147,10 @@ class PairsTradingEnv(gym.Env):
         self.trading_sim.execute(action, spread, s1_price, s2_price, penalty)
 
         self.trading_day += 1
-
-        obs = np.array(stock_1_changes+stock_2_changes+[spread, self.trading_sim.status.value])
+        if self.spread_status == 0:
+            obs = np.array(stock_1_changes+stock_2_changes+[spread])
+        else:
+            obs = np.array(stock_1_changes+stock_2_changes+[spread, self.trading_sim.status.value])
         balance = self.trading_sim.get_NAV(s1_price, s2_price)
         reward = balance / self.previous_balance - 1 # Subtract 1 to centre at 0
 
@@ -139,7 +168,7 @@ class PairsTradingEnv(gym.Env):
 
     def render(self, mode='human'):
         """Render the current environment
-        
+
         Keyword Arguments:
             mode {str} -- Which mode to render as (default: {'human'})
         """
@@ -255,9 +284,9 @@ class PairsTradingEnvV2(gym.Env):
             return True
         except StopIteration:
             False
-    
+
     def step(self, action, penalty):
-        done = 0 
+        done = 0
         try:
             date, data = next(self.data_source)
         except StopIteration:
@@ -358,22 +387,22 @@ if __name__=='__main__':
             action_rand = np.random.choice([1,2])
         else:
             action_rand = np.random.choice([0,2])
-    
+
         obsRandom, r, done, msg = env.step(action_rand)
-        
+
 #             action = np.random.choice([1,2])
 #             if obsRandom[3] == 1 and action == 1:
 #                 action = 0
-                
+
         if obsRandom[len(obsRandom)-1] == 0:
             action_rand = np.random.choice([1,2])
         else:
             action_rand = np.random.choice([0,2])
-    
+
         obsRandom, r, done, msg = env.step(action_rand)
         env.render(mode='human')
         if done: break
-    
+
     # for _ in range(500):
     #     max_stock_dist = 0.8
     #     dist_a = random.uniform(0,max_stock_dist)
