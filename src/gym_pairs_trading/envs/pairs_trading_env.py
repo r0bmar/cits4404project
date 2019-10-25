@@ -32,10 +32,23 @@ class PairsTradingEnv(gym.Env):
         self.plot_data = {}
 
     def seed(self, seed=None):
+        """Sets a seed for the envirnoment
+        
+        Keyword Arguments:
+            seed {any} -- seed value (default: {None})
+        
+        Returns:
+            [[seed]] -- seed value in array
+        """
         self.np_random, seed = seeding.np_random(seed)
         return [seed]
 
     def reset(self):
+        """Resets the ennvironment
+        
+        Returns:
+            numpy.Array -- Initial observations from environment
+        """
         self.data_source.reset()
         self.trading_sim.reset()
         self.market_metrics.reset()
@@ -62,6 +75,14 @@ class PairsTradingEnv(gym.Env):
         return np.array(stock_1_changes+stock_2_changes+[spread, self.trading_sim.status.value])
 
     def skip_forward(self, days):
+        """Skip forward a number of days in the envirnoment. Will fail if end of dataset.
+        
+        Arguments:
+            days {int} -- number of days to skip ahead
+        
+        Returns:
+            bool -- If skip was successful
+        """
         try:
             for _ in range(days):
                 date, data = next(self.data_source)
@@ -75,6 +96,14 @@ class PairsTradingEnv(gym.Env):
             False
     
     def step(self, action, penalty):
+        """Perform a set in the environment
+        
+        Arguments:
+            action {int} -- One of Action enum values
+        
+        Returns:
+            tuple -- (obs, reward, done, info) implementation of gym
+        """
         done = 0 
         try:
             date, data = next(self.data_source)
@@ -109,6 +138,11 @@ class PairsTradingEnv(gym.Env):
         return obs, reward, done, {"date": date, "trading_day": self.trading_day}
 
     def render(self, mode='human'):
+        """Render the current environment
+        
+        Keyword Arguments:
+            mode {str} -- Which mode to render as (default: {'human'})
+        """
         if mode=='human':
             # Setting up matplotlib data structures
             fig = self.plot_data.get('portfolio_value_fig') or plt.figure(figsize=(18, 4.5))
@@ -161,6 +195,7 @@ class PairsTradingEnv(gym.Env):
         else:
             print("Invalid render mode")
 
+# Ignore this class, used for testing.
 class PairsTradingEnvV2(gym.Env):
     metadata = {'render.modes': ['human', 'console']}
 
@@ -310,22 +345,44 @@ class PairsTradingEnvV2(gym.Env):
             print("Invalid render mode")
 
 if __name__=='__main__':
-    env = PairsTradingEnvV2("AAPL","AMZN", transaction_fee=10)
+    env = PairsTradingEnv("AAPL","MSFT")
 
     import random
     import time
 
-    env.reset()
+    obsRandom = env.reset()
     plt.ion()
-    for _ in range(500):
-        max_stock_dist = 0.8
-        dist_a = random.uniform(0,max_stock_dist)
 
-        action = [dist_a,max_stock_dist-dist_a,1-max_stock_dist]
-        action = [0.4, 0.4, 0.2]
-
-        obs, reward, done, _ = env.step(action)
+    for days in range(250):
+        if obsRandom[len(obsRandom)-1] == 0:
+            action_rand = np.random.choice([1,2])
+        else:
+            action_rand = np.random.choice([0,2])
+    
+        obsRandom, r, done, msg = env.step(action_rand)
+        
+#             action = np.random.choice([1,2])
+#             if obsRandom[3] == 1 and action == 1:
+#                 action = 0
+                
+        if obsRandom[len(obsRandom)-1] == 0:
+            action_rand = np.random.choice([1,2])
+        else:
+            action_rand = np.random.choice([0,2])
+    
+        obsRandom, r, done, msg = env.step(action_rand)
         env.render(mode='human')
-
         if done: break
+    
+    # for _ in range(500):
+    #     max_stock_dist = 0.8
+    #     dist_a = random.uniform(0,max_stock_dist)
+
+    #     action = [dist_a,max_stock_dist-dist_a,1-max_stock_dist]
+    #     action = [0.4, 0.4, 0.2]
+
+    #     obs, reward, done, _ = env.step(action)
+    #     env.render(mode='human')
+
+    #     if done: break
     plt.show(block=True)
